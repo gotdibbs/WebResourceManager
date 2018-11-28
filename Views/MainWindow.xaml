@@ -1,0 +1,511 @@
+﻿<Controls:MetroWindow x:Class="WebResourceManager.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WebResourceManager.Views"
+        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:MoreControls="http://propertytools.org/wpf"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        mc:Ignorable="d"
+        MinHeight="450" Height="480" Width="800">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Key="U" Modifiers="Ctrl" Command="{Binding UploadCommand}" />
+        <KeyBinding Key="R" Modifiers="Ctrl" Command="{Binding RefreshCommand}" />
+        <KeyBinding Key="V" Modifiers="Ctrl" Command="{Binding ViewCommand}" />
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenFolderCommand}" />
+        <KeyBinding Key="E" Modifiers="Ctrl" Command="{Binding EditInCodeCommand}" />
+        <KeyBinding Key="D" Modifiers="Ctrl" Command="{Binding DiffCommand}" />
+        <KeyBinding Key="T" Modifiers="Ctrl" Command="{Binding ToggleFileWatcherCommand}" />
+    </Window.InputBindings>
+
+    <Controls:MetroWindow.TitleTemplate>
+        <DataTemplate>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="pack://application:,,,/WebResourceManager;component/Resources/upload_button_white.ico" HorizontalAlignment="Left" Margin="0,0,10,0" />
+                <TextBlock Text="WEB RESOURCE MANAGER" VerticalAlignment="Center" FontSize="20" />
+            </StackPanel>
+        </DataTemplate>
+    </Controls:MetroWindow.TitleTemplate>
+    
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands VerticalAlignment="Center" VerticalContentAlignment="Center">
+            <Controls:ProgressRing IsActive="{Binding IsBusy}" Height="16" Width="16" Margin="0, 0, 10, 0" Foreground="White" />
+            <TextBlock Margin="5,0">
+                <Run Text="Connected to: "/>
+                <Run Text="{Binding Path=SelectedProjectName, Mode=OneWay, FallbackValue=None}" />
+            </TextBlock>
+            <Button Command="{Binding Path=OpenSettingsCommand}">
+                <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                    <Rectangle.OpacityMask>
+                        <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_settings}" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
+    <Controls:MetroWindow.Flyouts>
+        <Controls:FlyoutsControl>
+            <Controls:Flyout Header="settings" Position="Right" Width="400" IsOpen="{Binding Path=IsSettingsVisible, Mode=TwoWay, FallbackValue=False}">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Row="0">
+                        <TextBlock>Project</TextBlock>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox ItemsSource="{Binding Projects}"
+                                      SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
+                                      IsEnabled="{Binding IsNotBusy}"
+                                      DisplayMemberPath="Name"
+                                      Grid.Column="0"/>
+                            <Button Height="32"
+                                    Grid.Column="2"
+						            Command="{Binding AddCommand}">
+                                <Button.ToolTip>
+                                    <ToolTip>
+                                        <TextBlock Text="Add new connection"/>
+                                    </ToolTip>
+                                </Button.ToolTip>
+                                <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_add}" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Button>
+                            <Button Height="32"
+                                    Grid.Column="4"
+						            Command="{Binding DeleteCommand}">
+                                <Button.ToolTip>
+                                    <ToolTip>
+                                        <TextBlock Text="Remove selected connection"/>
+                                    </ToolTip>
+                                </Button.ToolTip>
+                                <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_delete}" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2">
+                        <TextBlock>Name</TextBlock>
+                        <TextBox IsEnabled="{Binding IsProjectSelected}"
+                                 Text="{Binding Path=SelectedProject.Name, Mode=TwoWay}"></TextBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="4">
+                        <TextBlock>Directory</TextBlock>
+                        <MoreControls:DirectoryPicker IsEnabled="{Binding IsProjectSelected}"
+                                                      Directory="{Binding Path=SelectedProject.Path, Mode=TwoWay}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="6">
+                        <TextBlock>Connection</TextBlock>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="75" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding Path=SelectedProject.ConnectionString}"
+                                       Grid.Column="0" VerticalAlignment="Center"/>
+                            <Button IsEnabled="{Binding IsProjectSelected}"
+                                    Command="{Binding UpdateConnectionCommand}"
+                                    Grid.Column="2">Connect</Button>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="8">
+                        <TextBlock>Solution</TextBlock>
+                        <ComboBox IsEnabled="{Binding IsConnected}"
+                                  ItemsSource="{Binding Solutions, Mode=OneWay}"
+                                  SelectedItem="{Binding SelectedSolution, Mode=TwoWay}"
+                                  DisplayMemberPath="Name"></ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="10">
+                        <TextBlock>Root Namespace</TextBlock>
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="3" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       VerticalAlignment="Center">
+                                <Run Text="{Binding Path=SelectedSolution.CustomizationPrefix, Mode=TwoWay, FallbackValue=new}" />
+                                <Run Text="_" />
+                            </TextBlock>
+                            <TextBox Grid.Column="2"
+                                     IsEnabled="{Binding IsProjectSelected}"
+                                     HorizontalAlignment="Stretch"
+                                     Width="Auto"
+                                     Text="{Binding Path=SelectedProject.Namespace, Mode=TwoWay}"></TextBox>
+                        </Grid>
+                    </StackPanel>
+
+                    <Button Height="32"
+                            Grid.Row="12"
+						    Command="{Binding SaveCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle Width="16" Height="16"
+                                   Margin="0,0,10,0"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                                <Rectangle.OpacityMask>
+                                    <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_save}" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                            <TextBlock Text="Save" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Controls:Flyout>
+            <Controls:Flyout Header="override" Position="Right" Width="400" IsOpen="{Binding Path=IsOverrideVisible, Mode=TwoWay, FallbackValue=False}">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0">
+                        <TextBlock>Local Path</TextBlock>
+                        <TextBox IsEnabled="False"
+                                 Text="{Binding Path=SelectedOverride.LocalRelativePath, Mode=TwoWay}"></TextBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2">
+                        <TextBlock>Remote Path</TextBlock>
+                        <TextBox Text="{Binding Path=SelectedOverride.RemoteName, Mode=TwoWay}"></TextBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="4">
+                        <TextBlock>Description</TextBlock>
+                        <TextBox IsEnabled="{Binding IsProjectSelected}"
+                                 Text="{Binding Path=SelectedOverride.Description, Mode=TwoWay}"></TextBox>
+                    </StackPanel>
+
+                    <Button Height="32"
+                            Grid.Row="6"
+						    Command="{Binding SaveOverrideCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle Width="16" Height="16"
+                                   Margin="0,0,10,0"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                                <Rectangle.OpacityMask>
+                                    <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_save}" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                            <TextBlock Text="Save" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Controls:Flyout>
+        </Controls:FlyoutsControl>
+    </Controls:MetroWindow.Flyouts>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <Grid Background="#888" Height="45" Grid.Row="0">
+            <Grid.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatButton.xaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Controls:Badged Grid.Column="0" Badge="{Binding CountLocalChanges}" VerticalAlignment="Bottom">
+                <Button Height="32" Command="{Binding ToggleFileWatcherCommand}">
+                    <Button.ToolTip>
+                        <ToolTip>
+                            <TextBlock Margin="3"><Run TextDecorations="Underline">T</Run>oggle watching the local file system for changes</TextBlock>
+                        </ToolTip>
+                    </Button.ToolTip>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Width="16" Height="16"
+                                   Margin="0,0,10,0"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                            <Rectangle.OpacityMask>
+                                <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_clock}" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="{Binding FileWatcherCommandText}" />
+                    </StackPanel>
+                </Button>
+            </Controls:Badged>
+
+            <Button Grid.Column="2" Height="32" VerticalAlignment="Bottom" Command="{Binding RefreshCommand}">
+                <Button.ToolTip>
+                    <ToolTip>
+                        <TextBlock Margin="3"><Run TextDecorations="Underline">R</Run>efresh list of web resources</TextBlock>
+                    </ToolTip>
+                </Button.ToolTip>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_refresh}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <!--<TextBlock>Refresh</TextBlock>-->
+                </StackPanel>
+            </Button>
+
+            <Controls:Badged Grid.Column="4" Badge="{Binding CountUploadSelected}" VerticalAlignment="Bottom">
+                <Button Height="32" Command="{Binding UploadCommand}">
+                    <Button.ToolTip>
+                        <ToolTip>
+                            <TextBlock Margin="3"><Run TextDecorations="Underline">U</Run>pload checked files to Dynamics</TextBlock>
+                        </ToolTip>
+                    </Button.ToolTip>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                            <Rectangle.OpacityMask>
+                                <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_upload}" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <!--<TextBlock>Upload</TextBlock>-->
+                    </StackPanel>
+                </Button>
+            </Controls:Badged>
+
+            <Controls:Badged Grid.Column="6" Badge="{Binding CountDownloadSelected}" VerticalAlignment="Bottom">
+                <Button Height="32" Command="{Binding DownloadCommand}">
+                    <Button.ToolTip>
+                        <ToolTip>
+                            <TextBlock>Download checked web resources from Dynamics</TextBlock>
+                        </ToolTip>
+                    </Button.ToolTip>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                            <Rectangle.OpacityMask>
+                                <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_download}" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <!--<TextBlock>Download</TextBlock>-->
+                    </StackPanel>
+                </Button>
+            </Controls:Badged>
+
+            <Button Grid.Column="8" Height="32" VerticalAlignment="Bottom" Command="{Binding ViewCommand}">
+                <Button.ToolTip>
+                    <ToolTip>
+                        <TextBlock Margin="3">Edit/<Run TextDecorations="Underline">V</Run>iew the selected web resource in Dynamics</TextBlock>
+                    </ToolTip>
+                </Button.ToolTip>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_eye}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <!--<TextBlock>View in Dynamics</TextBlock>-->
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="10" Height="32" VerticalAlignment="Bottom" Command="{Binding EditInCodeCommand}">
+                <Button.ToolTip>
+                    <ToolTip>
+                        <TextBlock Margin="3"><Run TextDecorations="Underline">E</Run>dit in VS Code</TextBlock>
+                    </ToolTip>
+                </Button.ToolTip>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_page_code}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <!--<TextBlock>Edit in VS Code</TextBlock>-->
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="12" Height="32" VerticalAlignment="Bottom" Command="{Binding OpenFolderCommand}">
+                <Button.ToolTip>
+                    <ToolTip>
+                        <TextBlock Margin="3"><Run TextDecorations="Underline">O</Run>pen the current project folder in Windows Explorer</TextBlock>
+                    </ToolTip>
+                </Button.ToolTip>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_folder_open}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <!--<TextBlock>Open Folder</TextBlock>-->
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="14" Height="32" VerticalAlignment="Bottom" Command="{Binding DiffCommand}">
+                <Button.ToolTip>
+                    <ToolTip>
+                        <TextBlock Margin="3">Run a <Run TextDecorations="Underline">d</Run>iff between remote and local copies of the file (requires VS Code)</TextBlock>
+                    </ToolTip>
+                </Button.ToolTip>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="16" Height="16"
+                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Uniform" Visual="{DynamicResource appbar_shuffle}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <!--<TextBlock>Diff</TextBlock>-->
+                </StackPanel>
+            </Button>
+
+            <StackPanel Grid.Column="16"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Bottom"
+                        Height="32">
+                <TextBlock VerticalAlignment="Center"
+                           Margin="0,0,5,0">View</TextBlock>
+                <ComboBox Height="32"
+                        VerticalAlignment="Bottom"
+                        HorizontalAlignment="Center"
+                        HorizontalContentAlignment="Left"
+                        Width="120"
+                        ItemsSource="{Binding Filters}"
+                        SelectedItem="{Binding SelectedFilter, Mode=TwoWay}"
+                        DisplayMemberPath="Name">
+                </ComboBox>
+            </StackPanel>
+        </Grid>
+
+        <DataGrid Grid.Row="1"
+              ItemsSource="{Binding FilteredWebResources}"
+              SelectedItem="{Binding SelectedWebResource}"
+              VerticalAlignment="Stretch"
+              HorizontalAlignment="Stretch"
+              IsReadOnly="False"
+              CanUserAddRows="False"
+              CanUserDeleteRows="False"
+              AutoGenerateColumns="False"
+              HorizontalContentAlignment="Stretch"
+              VerticalContentAlignment="Stretch"
+              ScrollViewer.HorizontalScrollBarVisibility="Auto">
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding EditOverrideCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Width="Auto">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:MainWindow}, Path=DataContext.AreAllSelected}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Path=IsSelected, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="10,0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="File Name" Width="Auto" Binding="{Binding FileName}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Remote Path" Width="Auto" Binding="{Binding Name}" SortDirection="Ascending" IsReadOnly="True" />
+                <DataGridTextColumn Header="Local Path" Width="Auto" Binding="{Binding LocalRelativePath}" SortDirection="Ascending" IsReadOnly="True" />
+                <DataGridTextColumn Header="Status" Width="Auto" Binding="{Binding Status}" IsReadOnly="True">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status}" Value="Not in solution">
+                                    <Setter Property="Background" Value="#aaff0000"></Setter>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="New">
+                                    <Setter Property="Background" Value="#aaffc40d"></Setter>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="Exists">
+                                    <Setter Property="Background" Value="#6600fa00"></Setter>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="Changed">
+                                    <Setter Property="Background" Value="#aada532c"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Modified By" Width="Auto" Binding="{Binding ModifiedBy}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Modified On" Width="Auto" Binding="{Binding ModifiedOn}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Type" Width="Auto" Binding="{Binding WebResourceType}" IsReadOnly="True" />
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+        <StackPanel Grid.Row="2">
+            <Border BorderBrush="CadetBlue" BorderThickness="0,2,0,0" CornerRadius="0" Padding="10">
+                <TextBlock>
+                    <Run Text="Remote Status: "/>
+                    <Run Text="{Binding StatusText, Mode=OneWay}" />
+                </TextBlock>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Controls:MetroWindow>
