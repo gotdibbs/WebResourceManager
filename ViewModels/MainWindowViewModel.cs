@@ -321,16 +321,19 @@ namespace WebResourceManager.ViewModels
 
         private void UpdateFilter()
         {
-            FilteredWebResources.Clear();
-
-            foreach (var resource in WebResources.Where(SelectedFilter.ApplyFilter))
+            UIHelper.Invoke(() =>
             {
-                FilteredWebResources.Add(resource);
-            }
+                FilteredWebResources.Clear();
 
-            RaisePropertyChanged(() => CountSelected);
-            RaisePropertyChanged(() => CountUploadSelected);
-            RaisePropertyChanged(() => CountDownloadSelected);
+                foreach (var resource in WebResources.Where(SelectedFilter.ApplyFilter))
+                {
+                    FilteredWebResources.Add(resource);
+                }
+
+                RaisePropertyChanged(() => CountSelected);
+                RaisePropertyChanged(() => CountUploadSelected);
+                RaisePropertyChanged(() => CountDownloadSelected);
+            });
         }
 
         public void OpenSettings()
@@ -494,6 +497,8 @@ namespace WebResourceManager.ViewModels
                 foreach (INotifyPropertyChanged item in e.NewItems)
                     item.PropertyChanged += WebResource_PropertyChanged;
             }
+
+            UpdateFilter();
         }
 
         private void WebResource_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -503,6 +508,9 @@ namespace WebResourceManager.ViewModels
                 RaisePropertyChanged(() => CountSelected);
                 RaisePropertyChanged(() => CountUploadSelected);
                 RaisePropertyChanged(() => CountDownloadSelected);
+                RaisePropertyChanged(() => FilteredWebResources);
+
+                UpdateFilter();
             }
         }
 
