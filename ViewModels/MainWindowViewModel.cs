@@ -191,6 +191,20 @@ namespace WebResourceManager.ViewModels
             set { Set(ref _selectedSolution, value); }
         }
 
+        private ObservableCollection<ImposterProfile> _profiles;
+        public ObservableCollection<ImposterProfile> Profiles
+        {
+            get { return _profiles; }
+            set { Set(ref _profiles, value); }
+        }
+
+        private ImposterProfile _selectedProfile;
+        public ImposterProfile SelectedProfile
+        {
+            get { return _selectedProfile; }
+            set { Set(ref _selectedProfile, value); }
+        }
+
         private Override _selectedOverride;
         public Override SelectedOverride
         {
@@ -229,21 +243,22 @@ namespace WebResourceManager.ViewModels
             }
         }
 
-        public ICommand OpenSettingsCommand { get; set; }
-        public ICommand UpdateConnectionCommand { get; set; }
-        public ICommand ToggleFileWatcherCommand { get; set; }
-        public ICommand RefreshCommand { get; set; }
-        public ICommand UploadCommand { get; set; }
-        public ICommand DownloadCommand { get; set; }
-        public ICommand ViewCommand { get; set; }
-        public ICommand OpenFolderCommand { get; set; }
-        public ICommand EditInCodeCommand { get; set; }
-        public ICommand DiffCommand { get; set; }
-        public ICommand AddCommand { get; set; }
-        public ICommand DeleteCommand { get; set; }
-        public ICommand SaveCommand { get; set; }
-        public ICommand EditOverrideCommand { get; set; }
-        public ICommand SaveOverrideCommand { get; set; }
+        public ICommand OpenSettingsCommand { get; private set; }
+        public ICommand UpdateConnectionCommand { get; private set; }
+        public ICommand ToggleFileWatcherCommand { get; private set; }
+        public ICommand RefreshCommand { get; private set; }
+        public ICommand UploadCommand { get; private set; }
+        public ICommand DownloadCommand { get; private set; }
+        public ICommand ViewCommand { get; private set; }
+        public ICommand OpenFolderCommand { get; private set; }
+        public ICommand EditInCodeCommand { get; private set; }
+        public ICommand DebugWithImposterCommand { get; private set; }
+        public ICommand DiffCommand { get; private set; }
+        public ICommand AddCommand { get; private set; }
+        public ICommand DeleteCommand { get; private set; }
+        public ICommand SaveCommand { get; private set; }
+        public ICommand EditOverrideCommand { get; private set; }
+        public ICommand SaveOverrideCommand { get; private set; }
 
         public MainWindowViewModel()
         {
@@ -256,6 +271,7 @@ namespace WebResourceManager.ViewModels
             ViewCommand = new RelayCommand(() => View());
             OpenFolderCommand = new RelayCommand(() => OpenFolder());
             EditInCodeCommand = new RelayCommand(() => EditInCode());
+            DebugWithImposterCommand = new RelayCommand(() => DebugWithImposter());
             DiffCommand = new RelayCommand(() => Diff());
             AddCommand = new RelayCommand(() => AddConnection());
             DeleteCommand = new RelayCommand(() => DeleteConnection());
@@ -316,6 +332,10 @@ namespace WebResourceManager.ViewModels
             else if (e.PropertyName == GetPropertyName(() => IsBusy))
             {
                 RaisePropertyChanged(() => IsNotBusy);
+            }
+            else if (e.PropertyName == GetPropertyName(() => SelectedProfile) && SelectedProject != null)
+            {
+                SelectedProject.ImposterProfileId = SelectedProfile == null ? Guid.Empty : SelectedProfile.ProfileId;
             }
         }
 
@@ -387,6 +407,7 @@ namespace WebResourceManager.ViewModels
         private void LoadSettings()
         {
             _settings = Settings.Load();
+            Profiles = new ObservableCollection<ImposterProfile>(ImposterSettings.Load().Profiles);
 
             Projects = new ObservableCollection<Project>(_settings.Projects.OrderBy(p => p.Name));
 
@@ -411,6 +432,11 @@ namespace WebResourceManager.ViewModels
             if (SelectedProject == null || string.IsNullOrEmpty(SelectedProject.ConnectionString))
             {
                 return;
+            }
+
+            if (SelectedProject.ImposterProfileId != Guid.Empty)
+            {
+                SelectedProfile = Profiles.FirstOrDefault(p => p.ProfileId == SelectedProject.ImposterProfileId);
             }
 
             await Connect();
@@ -845,6 +871,16 @@ namespace WebResourceManager.ViewModels
             };
             process.StartInfo = startInfo;
             process.Start();
+        }
+
+        private void DebugWithImposter()
+        {
+            if (SelectedProject == null)
+            {
+                return;
+            }
+
+            FiddlerHelper.ExecAction(SelectedProject.ImposterProfileId);
         }
 
         private void StartTimer()

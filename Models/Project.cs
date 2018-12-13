@@ -59,6 +59,8 @@ namespace WebResourceManager.Models
 
         public Guid SolutionId { get; set; }
 
+        public Guid ImposterProfileId { get; set; }
+
         private List<Override> _overrides;
         [JsonIgnore]
         public List<Override> Overrides
