@@ -15,6 +15,11 @@ namespace WebResourceManager.Data
     {
         public static List<Solution> GetSolutions(CrmServiceClient client)
         {
+            if (client == null)
+            {
+                return new List<Solution>();
+            }
+
             var fetch =
                 @"<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
                     <entity name='solution'>
@@ -44,6 +49,11 @@ namespace WebResourceManager.Data
 
         public static WebResource GetExisting(CrmServiceClient client, string name)
         {
+            if (client == null)
+            {
+                return null;
+            }
+
             var query = $@"<fetch count='1'>
 	                        <entity name='webresource'>
 		                        <attribute name='name' />
@@ -80,6 +90,11 @@ namespace WebResourceManager.Data
 
         public static WebResource GetExistingContent(CrmServiceClient client, Guid id)
         {
+            if (client == null)
+            {
+                return null;
+            }
+
             var result = client.Retrieve("webresource", id, new ColumnSet("name", "webresourcetype", "content", "modifiedon", "modifiedby"));
 
             if (result == null)
@@ -101,6 +116,11 @@ namespace WebResourceManager.Data
 
         public static List<WebResource> GetAllBySolutionId(CrmServiceClient client, Guid solutionId)
         {
+            if (client == null)
+            {
+                return new List<WebResource>();
+            }
+
             var query = $@"<fetch>
 	                        <entity name='webresource'>
                                 <attribute name='name' />
@@ -139,6 +159,11 @@ namespace WebResourceManager.Data
 
         public static void Upsert(CrmServiceClient client, WebResource resource, Solution solution)
         {
+            if (client == null)
+            {
+                return;
+            }
+
             var entity = resource.ToEntity();
 
             var existing = GetExisting(client, resource.Name);
@@ -178,6 +203,11 @@ namespace WebResourceManager.Data
 
         public static void Publish(CrmServiceClient client, List<WebResource> webResources)
         {
+            if (client == null)
+            {
+                return;
+            }
+
             var resouresToPublish = webResources.Where(wr => !wr.Create);
 
             var paramXml = new StringBuilder();
