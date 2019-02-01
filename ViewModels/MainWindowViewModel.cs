@@ -91,6 +91,14 @@ namespace WebResourceManager.ViewModels
             }
         }
 
+        public bool IsConnectEnabled
+        {
+            get
+            {
+                return IsProjectSelected && IsNotBusy;
+            }
+        }
+
         public int? CountSelected
         {
             get
@@ -300,6 +308,8 @@ namespace WebResourceManager.ViewModels
                 !string.IsNullOrEmpty(SelectedProject.Path) &&
                 !string.IsNullOrEmpty(SelectedProject.ConnectionString))
             {
+                _timer?.Stop();
+
                 LoadProject();
                 _settings.LastSelectedProjectId = SelectedProject.Id;
                 SaveSettings();
@@ -332,6 +342,7 @@ namespace WebResourceManager.ViewModels
             else if (e.PropertyName == GetPropertyName(() => IsBusy))
             {
                 RaisePropertyChanged(() => IsNotBusy);
+                RaisePropertyChanged(() => IsConnectEnabled);
             }
             else if (e.PropertyName == GetPropertyName(() => SelectedProfile) && SelectedProject != null)
             {

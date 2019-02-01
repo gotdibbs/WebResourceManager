@@ -44,7 +44,7 @@
                 <Run Text="Connected to: "/>
                 <Run Text="{Binding Path=SelectedProjectName, Mode=OneWay, FallbackValue=None}" />
             </TextBlock>
-            <Button Command="{Binding Path=OpenSettingsCommand}">
+            <Button Command="{Binding Path=OpenSettingsCommand}" IsEnabled="{Binding IsNotBusy}">
                 <Rectangle Width="16" Height="16"
                                    Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
                     <Rectangle.OpacityMask>
@@ -146,7 +146,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBox Text="{Binding Path=SelectedProject.ConnectionString}"
                                            Grid.Column="0" VerticalAlignment="Center"/>
-                            <Button IsEnabled="{Binding IsProjectSelected}"
+                            <Button IsEnabled="{Binding IsConnectEnabled}"
                                         Command="{Binding UpdateConnectionCommand}"
                                         Grid.Column="2">Connect</Button>
                         </Grid>
