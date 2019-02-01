@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using WebResourceManager.Data;
@@ -6,14 +7,19 @@ using WebResourceManager.Helpers;
 
 namespace WebResourceManager.Models
 {
-    public class Project
+    public class Project : ObservableObject
     {
         private const string OVERRIDE_FILE_NAME = ".webresourceoverrides";
         private const string CONNECTION_KEY = "WebResourceManager";
 
         public Guid Id { get; set; }
 
-        public string Name { get; set; }
+        private string _name;
+        public string Name
+        {
+            get { return _name; }
+            set { Set(ref _name, value); }
+        }
 
         public string Path { get; set; }
 

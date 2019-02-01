@@ -420,7 +420,12 @@ namespace WebResourceManager.ViewModels
             _settings = Settings.Load();
             Profiles = new ObservableCollection<ImposterProfile>(ImposterSettings.Load().Profiles);
 
-            Projects = new ObservableCollection<Project>(_settings.Projects.OrderBy(p => p.Name));
+            Projects = new ObservableCollection<Project>();
+            Projects.CollectionChanged += Projects_CollectionChanged;
+            foreach (var project in _settings.Projects.OrderBy(p => p.Name))
+            {
+                Projects.Add(project);
+            }
 
             if (Projects.Count > 0)
             {
@@ -435,6 +440,28 @@ namespace WebResourceManager.ViewModels
                 SelectedProject = Projects.First();
 
                 IsSettingsVisible = true;
+            }
+        }
+
+        private void Projects_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (INotifyPropertyChanged item in e.OldItems)
+                    item.PropertyChanged -= Project_PropertyChanged;
+            }
+            if (e.NewItems != null)
+            {
+                foreach (INotifyPropertyChanged item in e.NewItems)
+                    item.PropertyChanged += Project_PropertyChanged;
+            }
+        }
+
+        private void Project_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Name")
+            {
+                RaisePropertyChanged(() => SelectedProjectName);
             }
         }
 
@@ -908,7 +935,7 @@ namespace WebResourceManager.ViewModels
 
         private async void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (!IsConnected)
+            if (!IsConnected || IsSettingsVisible)
             {
                 return;
             }
