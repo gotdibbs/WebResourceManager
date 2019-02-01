@@ -1,7 +1,7 @@
 # Web Resource Manager
 A utility to improve your Dynamics 365 Web Resource workflow.
 
-<img alt="ScreenShot" src="https://raw.github.com/gotdibbs/WebResourceManager/master/Screenshot.JPG" style="border: 1px solid #444;" />
+<img alt="ScreenShot" src="https://raw.githubusercontent.com/gotdibbs/WebResourceManager/master/screenshot.JPG" style="border: 1px solid #444;" />
 
 # Key Features
 - Upload and publish multiple files at a time
