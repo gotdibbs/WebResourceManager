@@ -31,7 +31,7 @@ namespace WebResourceManager.Models
                     var parts = value.Split('_');
                     CustomizationPrefix = parts[0];
                     string pattern = $"^{parts[0]}_";
-                    RemoteName = Regex.Replace(value, pattern, String.Empty);
+                    RemoteName = Regex.Replace(value, pattern, string.Empty);
                 }
             }
         }
