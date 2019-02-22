@@ -500,7 +500,7 @@ namespace WebResourceManager.ViewModels
 
                 foreach (var file in local)
                 {
-                    var match = remote?.FirstOrDefault(w => w.Name == file.Name);
+                    var match = remote?.FirstOrDefault(w => w.Name.Equals(file.Name, StringComparison.InvariantCultureIgnoreCase));
                     if (match != null)
                     {
                         file.ModifiedBy = match.ModifiedBy;

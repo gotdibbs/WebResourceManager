@@ -20,7 +20,12 @@ namespace WebResourceManager.Models
         Stylesheet_XSL = 9,
         ICO = 10,
         Vector = 11,
-        String = 12
+        String = 12,
+        Otf = 13,
+        Eot = 14,
+        Ttf = 15,
+        Woff = 16,
+        Woff2 = 17
     }
 
     public enum WebResourceStatus

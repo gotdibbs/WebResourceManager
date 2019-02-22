@@ -30,7 +30,8 @@ namespace WebResourceManager.Models
                 {
                     var parts = value.Split('_');
                     CustomizationPrefix = parts[0];
-                    RemoteName = value.Replace($"{parts[0]}_", string.Empty);
+                    string pattern = $"^{parts[0]}_";
+                    RemoteName = Regex.Replace(value, pattern, string.Empty);
                 }
             }
         }
@@ -155,6 +156,16 @@ namespace WebResourceManager.Models
                     return WebResourceType.Vector;
                 case "resx":
                     return WebResourceType.String;
+                case "otf":
+                    return WebResourceType.Otf;
+                case "eot":
+                    return WebResourceType.Eot;
+                case "ttf":
+                    return WebResourceType.Ttf;
+                case "woff":
+                    return WebResourceType.Woff;
+                case "woff2":
+                    return WebResourceType.Woff2;
                 default:
                     throw new ArgumentOutOfRangeException("extensionValue", $"{extensionValue} is not recognized as a valid file extension for a Web Resource.");
             }
