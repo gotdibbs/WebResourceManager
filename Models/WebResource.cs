@@ -30,7 +30,6 @@ namespace WebResourceManager.Models
                 {
                     var parts = value.Split('_');
                     CustomizationPrefix = parts[0];
-                    //RemoteName = value.Replace($"{parts[0]}_", string.Empty);
                     string pattern = $"^{parts[0]}_";
                     RemoteName = Regex.Replace(value, pattern, string.Empty);
                 }
