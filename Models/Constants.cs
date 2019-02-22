@@ -23,7 +23,12 @@ namespace WebResourceManager.Models
             "xap",
             "svg",
             "ico",
-            "resx"
+            "resx",
+            "otf",
+            "eot",
+            "ttf",
+            "woff",
+            "woff2"
         };
 
         public static Dictionary<WebResourceType, string> WebResourceExtensionMap = new Dictionary<WebResourceType, string>
@@ -39,7 +44,12 @@ namespace WebResourceManager.Models
             { WebResourceType.String, "resx" },
             { WebResourceType.Stylesheet_XSL, "xsl" },
             { WebResourceType.Vector, "svg" },
-            { WebResourceType.XML, "xml" }
+            { WebResourceType.XML, "xml" },
+            { WebResourceType.Eot, "eot" },
+            { WebResourceType.Otf, "otf" },
+            { WebResourceType.Ttf, "ttf" },
+            { WebResourceType.Woff, "woff" },
+            { WebResourceType.Woff2, "woff2" }
         };
 
         public static string WebResourceLogicalName = "webresource";
